@@ -9,9 +9,6 @@ const { promisify } = require('util');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
-const os = require('os');
-const wifiPassword = require('wifi-password');
-const localIp = os.networkInterfaces()['Wi-Fi'][1].address;
 
 const hostname = '0.0.0.0';
 const port = 3000;
@@ -29,7 +26,6 @@ const server = http.createServer((req, res) => {
     if(req.url==='/'){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/plain');
-        console.log(`Server is running at http://${localIp}:${port}`);
         res.end('Hello World');
     }
     if(req.url==='/products'){
@@ -196,6 +192,4 @@ const server = http.createServer((req, res) => {
     }
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server is running on http://${localIp}:${port}`);
-});
+server.listen(port, hostname, () => {});
