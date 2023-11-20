@@ -1,25 +1,30 @@
 {
+  "name": "vue-project",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "client-sessions": "^0.8.0",
-    "connect-flash": "^0.1.1",
-    "cookie": "^0.5.0",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "formidable": "^2.1.1",
-    "jsonwebtoken": "^9.0.2",
-    "localStorage": "^1.0.4",
-    "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.1.2",
-    "node-localstorage": "^2.2.1",
-    "nodemon": "^3.0.1",
-    "polyfill-localstorage-node": "^0.0.9",
-    "sequelize": "^6.29.3",
-    "wifi-password": "^3.0.1"
+    "@mdi/font": "^7.1.96",
+    "@vue/cli-service": "^5.0.8",
+    "axios": "^1.2.1",
+    "intersection-observer": "^0.12.2",
+    "js-cookie": "^3.0.5",
+    "json-css-search": "^1.0.1",
+    "material-design-icons-iconfont": "^6.7.0",
+    "vue": "^3.2.45",
+    "vue-router": "^4.1.6",
+    "vuetify": "^3.3.19",
+    "vuetify-loader": "^1.9.2",
+    "waypoints": "^4.0.1"
   },
   "devDependencies": {
-    "localstorage-polyfill": "^1.0.1"
+    "@vitejs/plugin-vue": "^4.0.0",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.2.2",
+    "vite": "^4.0.0"
   }
 }
