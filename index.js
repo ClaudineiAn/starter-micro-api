@@ -39,8 +39,6 @@ const server = http.createServer((req, res) => {
         })();
     }
     if (req.method === 'POST' && req.url === '/upload') {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('oi');
         const uploadMiddleware = upload.single('image');
         uploadMiddleware(req, res, async (err) => {
             if (err) {
