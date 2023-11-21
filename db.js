@@ -3,10 +3,10 @@ async function connect(){
         return global.con;
     var mysql = require('mysql2/promise');
     var con = await mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "loja"
+        host: process.env.HOST,
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
     });
     global.con=con;
     return con;
