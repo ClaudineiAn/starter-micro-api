@@ -42,49 +42,7 @@ const server = http.createServer((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'POST');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-        const uploadMiddleware = upload.single('image');
-        uploadMiddleware(req, res, async (err) => {
-            if (err) {
-                console.error(err);
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Error uploading file');
-                return;
-            }
-            const file = req.file;
-            if (file.size > 10485760) {
-                res.writeHead(400, { 'Content-Type': 'text/plain' });
-                res.end('File size exceeds the limit.');
-                fs.unlinkSync(file.path);
-                return;
-            }
-            const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif']; // Add more extensions as needed
-            const fileExtension = file.originalname.substr(file.originalname.lastIndexOf('.')).toLowerCase();
-
-            if (!allowedExtensions.includes(fileExtension)) {
-                res.writeHead(400, { 'Content-Type': 'text/plain' });
-                res.end('File extension is not allowed.');
-                await unlinkAsync(file.path);
-                return;
-            }
-            if (fs.existsSync(file.path)) {
-                const newName = `${Date.now()}_${file.originalname}`;
-                const newPath = `profileImg/${newName}`;
-                fs.rename(file.path, newPath, (err) => {
-                    if (err) {
-                        console.error(err);
-                        res.writeHead(500, { 'Content-Type': 'text/plain' });
-                        res.end('Error renaming file');
-                        return;
-                    }
-                    console.log(global.userEmail)
-                    res.writeHead(200, { 'Content-Type': 'text/plain' });
-                    res.end("Profile Image Updated");
-                });
-            }else {
-                console.error(`File ${file.path} does not exist`);
-                res.status(500).send('Error uploading file');
-            }
-        });
+        handleFileUpload(req, res);
     }
     if(req.method==='GET'){
         const parsedUrl = url.parse(req.url);
@@ -199,3 +157,47 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, hostname, () => {});
+
+async function handleFileUpload(req, res) {
+    try {
+      const uploadMiddleware = upload.single('image');
+
+      const uploadAsync = util.promisify(uploadMiddleware);
+      await uploadAsync(req, res);
+  
+      const file = req.file;
+      if (!file) {
+        throw new Error('No file uploaded');
+      }
+
+      if (file.size > 10485760) {
+        await handleUploadError(res, file.path, 'File size exceeds the limit.');
+        return;
+      }
+
+      const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+      const fileExtension = path.extname(file.originalname).toLowerCase();
+      if (!allowedExtensions.includes(fileExtension)) {
+        await handleUploadError(res, file.path, 'File extension is not allowed.');
+        return;
+      }
+      const newName = `${Date.now()}_${file.originalname}`;
+      const newPath = `profileImg/${newName}`;
+      await fs.rename(file.path, newPath);
+  
+      console.log(global.userEmail);
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('Profile Image Updated');
+    } catch (error) {
+      console.error(error.message);
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('Error uploading file');
+    }
+  }
+  
+  async function handleUploadError(res, filePath, errorMessage) {
+    console.error(errorMessage);
+    await unlinkAsync(filePath);
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end(errorMessage);
+  }
