@@ -88,6 +88,9 @@ const server = http.createServer((req, res) => {
         const query = querystring.parse(parsedUrl.query);
         if(parsedUrl.pathname==='/updateUser'){
             global.userEmail = query.e
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'text/plain');
+            res.end();
         }
         if(parsedUrl.pathname==='/search'){
             (async()=>{
