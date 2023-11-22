@@ -163,7 +163,7 @@ async function handleFileUpload(req, res) {
       const uploadAsync = util.promisify(uploadMiddleware);
       await uploadAsync(req, res);
   
-      const file = req.file;
+      const file = req.i;
       if (!file) {
         res.writeHead(400, { 'Content-Type': 'text/plain' });
         res.end('No file uploaded');
