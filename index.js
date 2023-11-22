@@ -18,10 +18,9 @@ const sessions = {};
 var emailUser = ''
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Origin', 'http://192.168.1.5:8080');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     const chunks = [];
     if(req.url==='/'){
@@ -38,6 +37,11 @@ const server = http.createServer((req, res) => {
             res.write(JSON.stringify(prodcts));
             res.end();
         })();
+    }
+    if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
     }
     if(req.method==='PUT'&& req.url === '/upload'){
         handleFileUpload(req, res);
@@ -166,7 +170,7 @@ async function handleFileUpload(req, res) {
       const uploadAsync = util.promisify(uploadMiddleware);
       await uploadAsync(req, res);
   
-      const file = req.i;
+      const file = req.file;
       if (!file) {
         res.writeHead(400, { 'Content-Type': 'text/plain' });
         res.end('No file uploaded');
