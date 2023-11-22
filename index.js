@@ -18,7 +18,7 @@ const sessions = {};
 var emailUser = ''
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://192.168.1.5:8080');
+    res.setHeader('Access-Control-Allow-Origin', 'https://cautious-puce-neckerchief.cyclic.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
