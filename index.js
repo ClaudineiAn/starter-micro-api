@@ -39,6 +39,9 @@ const server = http.createServer((req, res) => {
             res.end();
         })();
     }
+    if(req.method==='PUT'&& req.url === '/upload'){
+        handleFileUpload(req, res);
+    }
     if(req.method==='GET'){
         const parsedUrl = url.parse(req.url);
         const query = querystring.parse(parsedUrl.query);
