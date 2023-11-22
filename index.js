@@ -18,9 +18,10 @@ const sessions = {};
 var emailUser = ''
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://192.168.1.5:8080');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     const chunks = [];
     if(req.url==='/'){
