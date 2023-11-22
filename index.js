@@ -39,12 +39,12 @@ const server = http.createServer((req, res) => {
             res.end();
         })();
     }
-    if (req.method === 'POST' && req.url === '/upload') {
-        handleFileUpload(req, res);
-    }
     if(req.method==='GET'){
         const parsedUrl = url.parse(req.url);
         const query = querystring.parse(parsedUrl.query);
+        if (parsedUrl.pathname==='/upload') {
+            handleFileUpload(req, res);
+        }
         if(parsedUrl.pathname==='/updateUser'){
             global.userEmail = query.e
             res.statusCode = 200;
@@ -165,7 +165,8 @@ async function handleFileUpload(req, res) {
   
       const file = req.file;
       if (!file) {
-        throw new Error('No file uploaded');
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('No file uploaded');
       }
 
       if (file.size > 10485760) {
