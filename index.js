@@ -18,7 +18,7 @@ const sessions = {};
 var emailUser = ''
 
 const server = http.createServer((req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://cautious-puce-neckerchief.cyclic.app');
+    res.setHeader('Access-Control-Allow-Origin', 'https://sweet-bombolone-4523a4.netlify.app');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
