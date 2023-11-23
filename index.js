@@ -24,31 +24,33 @@ const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     const chunks = [];
-    
+
     const fileName = req.url.substring(1);
     const filePath = path.join(__dirname, 'profileImg', fileName);
   
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-      if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('File not found');
-        return;
-      }
-  
-      fs.readFile(filePath, (err, data) => {
+    if (isImageRequest(fileName)) {
+        fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
-          res.writeHead(500, { 'Content-Type': 'text/plain' });
-          res.end('Internal server error');
-          return;
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('File not found');
+            return;
         }
-  
-        const extension = path.extname(filePath).toLowerCase();
-        const contentType = getContentType(extension);
-  
-        res.writeHead(200, { 'Content-Type': contentType });
-        res.end(data);
-      });
-    });
+    
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Internal server error');
+            return;
+            }
+    
+            const extension = path.extname(filePath).toLowerCase();
+            const contentType = getContentType(extension);
+    
+            res.writeHead(200, { 'Content-Type': contentType });
+            res.end(data);
+        });
+        });
+    }
     if(req.url==='/'){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/plain');
@@ -245,4 +247,9 @@ async function handleFileUpload(req, res) {
       default:
         return 'application/octet-stream';
     }
+  };
+  const isImageRequest = (fileName) => {
+    const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+    const extension = path.extname(fileName).toLowerCase();
+    return imageExtensions.includes(extension);
   };
