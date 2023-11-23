@@ -3,6 +3,7 @@ const url = require('url');
 const querystring = require('querystring');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
+const path = require('path');
 const multer = require('multer');
 const jwt = require('jsonwebtoken')
 const { promisify } = require('util');
@@ -23,6 +24,31 @@ const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     const chunks = [];
+    
+    const fileName = req.url.substring(1);
+    const filePath = path.join(__dirname, 'profileImg', fileName);
+  
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('File not found');
+        return;
+      }
+  
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+          res.end('Internal server error');
+          return;
+        }
+  
+        const extension = path.extname(filePath).toLowerCase();
+        const contentType = getContentType(extension);
+  
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(data);
+      });
+    });
     if(req.url==='/'){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/plain');
@@ -207,3 +233,16 @@ async function handleFileUpload(req, res) {
     res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end(errorMessage);
   }
+  const getContentType = (extension) => {
+    switch (extension) {
+      case '.png':
+        return 'image/png';
+      case '.jpg':
+      case '.jpeg':
+        return 'image/jpeg';
+      case '.gif':
+        return 'image/gif';
+      default:
+        return 'application/octet-stream';
+    }
+  };
