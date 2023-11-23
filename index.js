@@ -28,11 +28,11 @@ cors()(req, res, () => {
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
     const chunks = [];
-
-    const fileName = req.url.substring(1);
-    const filePath = path.join(__dirname, 'profileImg', fileName);
   
+    const fileName = req.url.substring(1);
+    
     if (isImageRequest(fileName)) {
+        const filePath = path.join(__dirname, 'profileImg', fileName);
         fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
             res.writeHead(404, { 'Content-Type': 'text/plain' });
