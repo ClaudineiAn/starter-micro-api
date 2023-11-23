@@ -21,10 +21,11 @@ var emailUser = ''
 
 const server = http.createServer((req, res) => {
 cors()(req, res, () => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
+        'Access-Control-Max-Age': 2592000,
+    };
 
     const chunks = [];
 
@@ -70,12 +71,7 @@ cors()(req, res, () => {
         })();
     }
     if (req.method === 'OPTIONS') {
-        res.writeHead(200, {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Allow-Credentials': 'true',
-        });
+        res.writeHead(200, headers);
         res.end();
         return;
       }
@@ -230,7 +226,7 @@ async function handleFileUpload(req, res) {
       await fs.rename(file.path, newPath);
   
       console.log(global.userEmail);
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.writeHead(200, headers);
       res.end('Profile Image Updated');
     } catch (error) {
       console.error(error.message);
