@@ -7,6 +7,7 @@ const path = require('path');
 const multer = require('multer');
 const jwt = require('jsonwebtoken')
 const { promisify } = require('util');
+const cors = require('cors');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
@@ -19,6 +20,7 @@ const sessions = {};
 var emailUser = ''
 
 const server = http.createServer((req, res) => {
+cors()(req, res, () => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -68,10 +70,16 @@ const server = http.createServer((req, res) => {
         })();
     }
     if (req.method === 'OPTIONS') {
-        res.writeHead(200);
+        res.writeHead(200, {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Credentials': 'true',
+        });
         res.end();
         return;
-    }
+      }
+      
     if(req.method==='PUT'&& req.url === '/upload'){
         handleFileUpload(req, res);
     }
@@ -188,6 +196,7 @@ const server = http.createServer((req, res) => {
             });
         }
     }
+});
 });
 
 server.listen(port, hostname, () => {});
