@@ -23,7 +23,7 @@ const server = http.createServer((req, res) => {
 cors()(req, res, () => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', req.header.origin);
+    res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
 
     const chunks = [];
