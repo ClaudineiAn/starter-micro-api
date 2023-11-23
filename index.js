@@ -30,7 +30,7 @@ cors()(req, res, () => {
     const chunks = [];
   
     const fileName = req.url.substring(1);
-    
+
     if (isImageRequest(fileName)) {
         const filePath = path.join(__dirname, 'profileImg', fileName);
         fs.access(filePath, fs.constants.F_OK, (err) => {
@@ -227,7 +227,7 @@ async function handleFileUpload(req, res) {
         return;
       }
       const newName = `${Date.now()}_${file.originalname}`;
-      const newPath = `profileImg/${newName}`;
+      const newPath = path.join(__dirname, 'profileImg', newName);
       await fs.rename(file.path, newPath);
   
       console.log(global.userEmail);
