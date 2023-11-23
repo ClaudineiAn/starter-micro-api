@@ -202,41 +202,8 @@ cors()(req, res, () => {
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
-    try {
-      const uploadMiddleware = upload.single('image');
-
-      const uploadAsync = util.promisify(uploadMiddleware);
-      await uploadAsync(req, res);
-  
-      const file = req.file;
-      if (!file) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.end('No file uploaded');
-      }
-
-      if (file.size > 10485760) {
-        await handleUploadError(res, file.path, 'File size exceeds the limit.');
-        return;
-      }
-
-      const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
-      const fileExtension = path.extname(file.originalname).toLowerCase();
-      if (!allowedExtensions.includes(fileExtension)) {
-        await handleUploadError(res, file.path, 'File extension is not allowed.');
-        return;
-      }
-      const newName = `${Date.now()}_${file.originalname}`;
-      const newPath = `profileImg/${newName}`;
-      await fs.rename(file.path, newPath);
-  
-      console.log(global.userEmail);
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Profile Image Updated');
-    } catch (error) {
-      console.error(error.message);
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Error uploading file');
-    }
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Profile Image Updated');
   }
   
   async function handleUploadError(res, filePath, errorMessage) {
