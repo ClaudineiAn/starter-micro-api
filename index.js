@@ -241,9 +241,17 @@ async function handleFileUpload(req, res) {
             });
             req.on('end', async () => {
                 const data = Buffer.concat(chunks);
+
+                const contentDisposition = req.headers['content-disposition'];
+                const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
+
+                if (match) {
+                    const originalFilename = match[1];
+                }
                 
-                const fileTypeResult = fileType(data);
-                if (!fileTypeResult || !fileTypeResult.mime.startsWith('image')) {
+                const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+                const fileExtension = path.extname(originalFilename).toLowerCase();
+                if (!allowedExtensions.includes(fileExtension)) {
                     await handleUploadError(res, file.path, 'File extension is not allowed.');
                     return;
                 }
