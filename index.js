@@ -227,62 +227,60 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
-    exports.handler = async (event, context) => {
-        context.callbackWaitsForEmptyEventLoop = false;
-      
-        try {
-            const db = await connectToDatabase();
-            const bucket = new GridFSBucket(db, { bucketName });
+    context.callbackWaitsForEmptyEventLoop = false;
+    
+    try {
+        const db = await connectToDatabase();
+        const bucket = new GridFSBucket(db, { bucketName });
 
-            const chunks = [];
-            let dataSize = 0;
+        const chunks = [];
+        let dataSize = 0;
 
-            req.on('data', (chunk) => {
-                chunks.push(chunk);
-                dataSize += chunk.length;
-            });
-            req.on('end', async () => {
-                const data = Buffer.concat(chunks);
+        req.on('data', (chunk) => {
+            chunks.push(chunk);
+            dataSize += chunk.length;
+        });
+        req.on('end', async () => {
+            const data = Buffer.concat(chunks);
 
-                const contentDisposition = req.headers['content-disposition'];
-                const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
+            const contentDisposition = req.headers['content-disposition'];
+            const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
 
-                if (match) {
-                    const originalFilename = match[1];
-                }
-                
-                const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
-                const fileExtension = path.extname(originalFilename).toLowerCase();
-                if (!allowedExtensions.includes(fileExtension)) {
-                    await handleUploadError(res, file.path, 'File extension is not allowed.');
-                    return;
-                }
-        
-                if (dataSize > 10485760) {
-                    await handleUploadError(res, file.path, 'File size exceeds the limit.');
-                    return;
-                }
-        
-                const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
-                uploadStream.write(data);
-                uploadStream.end();
-        
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.end('Image uploaded successfully.');
-            });
-            return {
-                statusCode: 200,
-                body: JSON.stringify({ message: 'Success' }),
-            };
-        } catch (error) {
-          console.error('Handler error:', error);
-      
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ message: 'Internal Server Error' }),
-          };
-        }
-    };
+            if (match) {
+                const originalFilename = match[1];
+            }
+            
+            const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+            const fileExtension = path.extname(originalFilename).toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                await handleUploadError(res, file.path, 'File extension is not allowed.');
+                return;
+            }
+    
+            if (dataSize > 10485760) {
+                await handleUploadError(res, file.path, 'File size exceeds the limit.');
+                return;
+            }
+    
+            const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
+            uploadStream.write(data);
+            uploadStream.end();
+    
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('Image uploaded successfully.');
+        });
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ message: 'Success' }),
+        };
+    } catch (error) {
+        console.error('Handler error:', error);
+    
+        return {
+        statusCode: 500,
+        body: JSON.stringify({ message: 'Internal Server Error' }),
+        };
+    }
   }
   
   async function handleUploadError(res, filePath, errorMessage) {
