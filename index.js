@@ -45,7 +45,7 @@ const connectToDatabase = async () => {
 
 const server = http.createServer((req, res) => {
 cors()(req, res, () => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://cautious-puce-neckerchief.cyclic.app');
+    res.setHeader('Access-Control-Allow-Origin', 'https://sweet-bombolone-4523a4.netlify.app');
 
 res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
