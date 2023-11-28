@@ -47,10 +47,13 @@ const connectToDatabase = async () => {
 
 const server = http.createServer((req, res) => {
 cors()(req, res, () => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.setHeader('Access-Control-Allow-Origin', 'https://cautious-puce-neckerchief.cyclic.app');
+
+res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+res.setHeader('Access-Control-Allow-Credentials', true);
 
     const chunks = [];
 
