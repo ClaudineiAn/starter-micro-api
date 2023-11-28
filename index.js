@@ -31,11 +31,15 @@ const connectToDatabase = async () => {
 
   const uri = process.env.IMAGE_UPLOADER_DATABASE;
   const dbName = process.env.MONGODB_DATABASE;
-  
-  const client = new MongoClient(url);
 
   try {
-    await client.connect();
+    await MongoClient.connect(uri, {
+        serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+        }
+    });
     const db = client.db(dbName);
     cachedDb = db;
     return db;
