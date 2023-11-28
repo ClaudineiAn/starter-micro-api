@@ -227,6 +227,8 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
+exports.handler = async (event, context) => {
+context.callbackWaitsForEmptyEventLoop = false;
     try {
         const db = await connectToDatabase();
         const bucket = new GridFSBucket(db, { bucketName });
@@ -280,6 +282,7 @@ async function handleFileUpload(req, res) {
         };
     }
   }
+}
   
   async function handleUploadError(res, filePath, errorMessage) {
     console.error(errorMessage);
