@@ -33,13 +33,7 @@ const connectToDatabase = async () => {
   const dbName = process.env.MONGODB_DATABASE;
 
   try {
-    await MongoClient.connect(uri, {
-        serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-        }
-    });
+    await MongoClient.connect(uri);
     const db = client.db(dbName);
     cachedDb = db;
     return db;
