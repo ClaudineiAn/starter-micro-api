@@ -10,7 +10,6 @@ const util = require('util');
 const { promisify } = require('util');
 const cors = require('cors');
 const { MongoClient, GridFSBucket } = require('mongodb');
-const fileType = require('file-type');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
