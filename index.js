@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken')
 const util = require('util');
 const { promisify } = require('util');
 const cors = require('cors');
+const { MongoClient, GridFSBucket } = require('mongodb');
+const fileType = require('file-type');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
@@ -20,6 +22,30 @@ const sessions = {};
 
 var emailUser = ''
 
+let cachedDb = null;
+const bucketName = 'images';
+
+const connectToDatabase = async () => {
+  if (cachedDb) {
+    return cachedDb;
+  }
+
+  const uri = process.env.IMAGE_UPLOADER_DATABASE;
+  const dbName = process.env.MONGODB_DATABASE;
+
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    cachedDb = db;
+    return db;
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    throw error;
+  }
+};
+
 const server = http.createServer((req, res) => {
 cors()(req, res, () => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,33 +54,7 @@ cors()(req, res, () => {
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
     const chunks = [];
-  
-    const fileName = req.url.substring(1);
 
-    if (isImageRequest(fileName)) {
-        const filePath = path.join(__dirname, 'profileImg', fileName);
-        fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) {
-            res.writeHead(404, { 'Content-Type': 'text/plain' });
-            res.end('File not found');
-            return;
-        }
-    
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-            res.writeHead(500, { 'Content-Type': 'text/plain' });
-            res.end('Internal server error');
-            return;
-            }
-    
-            const extension = path.extname(filePath).toLowerCase();
-            const contentType = getContentType(extension);
-    
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(data);
-        });
-        });
-    }
     if(req.url==='/'){
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/plain');
@@ -87,6 +87,28 @@ cors()(req, res, () => {
     if(req.method==='GET'){
         const parsedUrl = url.parse(req.url);
         const query = querystring.parse(parsedUrl.query);
+        if(parsedUrl.pathname==='/image'){
+            try {
+                (async()=>{
+                    const db = await connectToDatabase();
+                    const bucket = new GridFSBucket(db, { bucketName });
+            
+                    const downloadStream = bucket.openDownloadStreamByName('uploaded_image.png');
+            
+                    downloadStream.on('data', (chunk) => res.write(chunk));
+                    downloadStream.on('end', () => res.end());
+                    downloadStream.on('error', (error) => {
+                    console.error('Error reading image from MongoDB:', error);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Internal Server Error');
+                    });
+                })();
+            } catch (error) {
+                console.error('Error retrieving image:', error);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error');
+            }
+        }
         if (parsedUrl.pathname==='/upload') {
             handleFileUpload(req, res);
         }
@@ -203,41 +225,54 @@ cors()(req, res, () => {
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
-    try {
-      const uploadMiddleware = upload.single('image');
+    exports.handler = async (event, context) => {
+        context.callbackWaitsForEmptyEventLoop = false;
+      
+        try {
+            const db = await connectToDatabase();
+            const bucket = new GridFSBucket(db, { bucketName });
 
-      const uploadAsync = util.promisify(uploadMiddleware);
-      await uploadAsync(req, res);
-  
-      const file = req.file;
-      if (!file) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.end('No file uploaded');
-      }
+            const chunks = [];
+            let dataSize = 0;
 
-      if (file.size > 10485760) {
-        await handleUploadError(res, file.path, 'File size exceeds the limit.');
-        return;
-      }
-
-      const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
-      const fileExtension = path.extname(file.originalname).toLowerCase();
-      if (!allowedExtensions.includes(fileExtension)) {
-        await handleUploadError(res, file.path, 'File extension is not allowed.');
-        return;
-      }
-      const newName = `${Date.now()}_${file.originalname}`;
-      const newPath = path.join(__dirname, 'profileImg', newName);
-      await fs.rename(file.path, newPath);
-  
-      console.log(global.userEmail);
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Profile Image Updated');
-    } catch (error) {
-      console.error(error.message);
-      res.writeHead(500, { 'Content-Type': 'text/plain' });
-      res.end('Error uploading file');
-    }
+            req.on('data', (chunk) => {
+                chunks.push(chunk);
+                dataSize += chunk.length;
+            });
+            req.on('end', async () => {
+                const data = Buffer.concat(chunks);
+                
+                const fileTypeResult = fileType(data);
+                if (!fileTypeResult || !fileTypeResult.mime.startsWith('image')) {
+                    await handleUploadError(res, file.path, 'File extension is not allowed.');
+                    return;
+                }
+        
+                if (dataSize > 10485760) {
+                    await handleUploadError(res, file.path, 'File size exceeds the limit.');
+                    return;
+                }
+        
+                const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
+                uploadStream.write(data);
+                uploadStream.end();
+        
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end('Image uploaded successfully.');
+            });
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ message: 'Success' }),
+            };
+        } catch (error) {
+          console.error('Handler error:', error);
+      
+          return {
+            statusCode: 500,
+            body: JSON.stringify({ message: 'Internal Server Error' }),
+          };
+        }
+    };
   }
   
   async function handleUploadError(res, filePath, errorMessage) {
