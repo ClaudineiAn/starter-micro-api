@@ -31,8 +31,8 @@ const connectToDatabase = async () => {
 
   const uri = process.env.IMAGE_UPLOADER_DATABASE;
   const dbName = process.env.MONGODB_DATABASE;
-
-  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  
+  const client = new MongoClient(url);
 
   try {
     await client.connect();
@@ -227,8 +227,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
-exports.handler = async (event, context) => {
-context.callbackWaitsForEmptyEventLoop = false;
     try {
         const db = await connectToDatabase();
         const bucket = new GridFSBucket(db, { bucketName });
@@ -282,7 +280,6 @@ context.callbackWaitsForEmptyEventLoop = false;
         };
     }
   }
-}
   
   async function handleUploadError(res, filePath, errorMessage) {
     console.error(errorMessage);
