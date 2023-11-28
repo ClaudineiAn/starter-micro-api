@@ -288,7 +288,13 @@ async function handleFileUpload(req, res) {
   async function handleUploadError(res, filePath, errorMessage) {
     console.error(errorMessage);
     await unlinkAsync(filePath);
-    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.writeHead(400, {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Type': 'text/plain',
+    });
     res.end(errorMessage);
   }
   const getContentType = (extension) => {
