@@ -261,14 +261,8 @@ async function handleFileUpload(req, res) {
             const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
             uploadStream.write(data);
             uploadStream.end();
-            
-            res.writeHead(200, {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Credentials': 'true',
-                'Content-Type': 'text/plain',
-            });
+    
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('Image uploaded successfully.');
         });
         return {
@@ -288,13 +282,7 @@ async function handleFileUpload(req, res) {
   async function handleUploadError(res, filePath, errorMessage) {
     console.error(errorMessage);
     await unlinkAsync(filePath);
-    res.writeHead(400, {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Credentials': 'true',
-        'Content-Type': 'text/plain',
-    });
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
     res.end(errorMessage);
   }
   const getContentType = (extension) => {
