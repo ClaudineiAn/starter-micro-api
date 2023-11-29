@@ -248,6 +248,7 @@ async function handleFileUpload(req, res) {
             
             const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
             const fileExtension = path.extname(originalFilename).toLowerCase();
+            console.log(fileExtension)
             if (!allowedExtensions.includes(fileExtension)) {
                 await handleUploadError(res, file.path, 'File extension is not allowed.');
                 return;
