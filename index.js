@@ -225,9 +225,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Image uploaded successfully.');
-    /*try {
+    try {
         const db = await connectToDatabase();
         const bucket = new GridFSBucket(db, { bucketName });
 
@@ -267,18 +265,13 @@ async function handleFileUpload(req, res) {
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('Image uploaded successfully.');
         });
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: 'Success' }),
-        };
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Image uploaded successfully.');
     } catch (error) {
         console.error('Handler error:', error);
-    
-        return {
-        statusCode: 500,
-        body: JSON.stringify({ message: 'Internal Server Error' }),
-        };
-    }*/
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+    }
   }
   
   async function handleUploadError(res, filePath, errorMessage) {
