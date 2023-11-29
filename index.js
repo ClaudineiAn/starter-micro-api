@@ -36,7 +36,7 @@ const connectToDatabase = async () => {
     const client = await MongoClient.connect(uri);
     const db = client.db(dbName);
     cachedDb = db;
-    return db;
+    return { client, db };
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
     throw error;
@@ -226,7 +226,7 @@ server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
     try {
-        const db = await connectToDatabase();
+        const { client, db } = await connectToDatabase();
         const bucket = new GridFSBucket(db, { bucketName });
 
         const chunks = [];
@@ -244,30 +244,37 @@ async function handleFileUpload(req, res) {
 
             if (match) {
                 const originalFilename = match[1];
-            }
             
-            const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
-            const fileExtension = path.extname(originalFilename).toLowerCase();
-            console.log(fileExtension)
-            if (!allowedExtensions.includes(fileExtension)) {
-                await handleUploadError(res, file.path, 'File extension is not allowed.');
-                return;
+                const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+                const fileExtension = path.extname(originalFilename).toLowerCase();
+                console.log(fileExtension)
+                if (!allowedExtensions.includes(fileExtension)) {
+                    await handleUploadError(res, file.path, 'File extension is not allowed.');
+                    return;
+                }
+        
+                if (dataSize > 10485760) {
+                    await handleUploadError(res, file.path, 'File size exceeds the limit.');
+                    return;
+                }
+        
+                const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
+                uploadStream.write(data);
+                uploadStream.end();
+        
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end('Image uploaded successfully.');
             }
-    
-            if (dataSize > 10485760) {
-                await handleUploadError(res, file.path, 'File size exceeds the limit.');
-                return;
-            }
-    
-            const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
-            uploadStream.write(data);
-            uploadStream.end();
-    
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end('Image uploaded successfully.');
         });
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Image uploaded successfully.');
+        req.on('error', (error) => {
+        console.error('Request error:', error);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+        });
+
+        req.on('close', () => {
+        client.close();
+        });
     } catch (error) {
         console.error('Handler error:', error);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
