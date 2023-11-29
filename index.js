@@ -32,9 +32,12 @@ const connectToDatabase = async () => {
   const uri = process.env.IMAGE_UPLOADER_DATABASE;
   const dbName = process.env.MONGODB_DATABASE;
 
+  console.log("b try")
   try {
     const client = await MongoClient.connect(uri);
+                console.log("a cliet")
     const db = client.db(dbName);
+                console.log("a db")
     cachedDb = db;
     return { client, db };
   } catch (error) {
@@ -225,11 +228,9 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
-                console.log("b try")
     try {
         const { client, db } = await connectToDatabase();
         const bucket = new GridFSBucket(db, { bucketName });
-                console.log("a bucket")
 
         const chunks = [];
         let dataSize = 0;
