@@ -225,9 +225,11 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
+                console.log("b try")
     try {
         const { client, db } = await connectToDatabase();
         const bucket = new GridFSBucket(db, { bucketName });
+                console.log("a bucket")
 
         const chunks = [];
         let dataSize = 0;
