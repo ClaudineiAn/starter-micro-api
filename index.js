@@ -34,7 +34,9 @@ const connectToDatabase = async () => {
 
   console.log("b try")
   try {
-    const client = await MongoClient.connect(uri);
+    const client = new MongoClient(connectionString);
+    let conn;
+    conn = await client.connect();
                 console.log("a cliet")
     const db = client.db(dbName);
                 console.log("a db")
