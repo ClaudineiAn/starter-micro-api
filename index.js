@@ -204,14 +204,14 @@ server.listen(port, hostname, () => {});
 async function handleFileUpload(req, res) {
     try {
         let body = '';
+        let dataSize = 0;
 
         req.on('data', (chunk) => {
-            body += chunk;
+            chunks.push(chunk);
+            dataSize += chunk.length;
         });
-
         req.on('end', async () => {
-            console.log(JSON.parse(body))
-            const data = JSON.parse(body);
+            const data = Buffer.concat(chunks);
             data.imagem_perfil_data = Buffer.from(data.imagem_perfil_data, 'base64');
 
             const contentDisposition = req.headers['content-disposition'];
@@ -227,8 +227,7 @@ async function handleFileUpload(req, res) {
                     await handleUploadError(res, 'File extension is not allowed.');
                     return;
                 }
-
-                const dataSize = data.imagem_perfil_data.length;
+                
                 if (dataSize > 10485760) {
                     await handleUploadError(res, 'File size exceeds the limit.');
                     return;
