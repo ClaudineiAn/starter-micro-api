@@ -216,8 +216,9 @@ async function handleFileUpload(req, res) {
 
             const contentDisposition = req.headers['content-disposition'];
             const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
-
+console.log(219)
             if (match) {
+                console.log(221)
                 const originalFilename = match[1];
 
                 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
@@ -233,6 +234,7 @@ async function handleFileUpload(req, res) {
                     return;
                 }
 
+console.log(237)
                 const timestampedFilename = `${Date.now()}_${originalFilename}`;
                 const { updateProfilePicture } = require("./controller/users");
                 await updateProfilePicture({
@@ -241,6 +243,7 @@ async function handleFileUpload(req, res) {
                     imagem_perfil_type: getContentType(fileExtension),
                 });
     
+console.log(246)
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end(timestampedFilename);
             }
