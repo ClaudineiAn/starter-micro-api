@@ -9,7 +9,6 @@ const jwt = require('jsonwebtoken')
 const util = require('util');
 const { promisify } = require('util');
 const cors = require('cors');
-const { MongoClient, GridFSBucket } = require('mongodb');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
@@ -20,33 +19,6 @@ const port = 3000;
 const sessions = {};
 
 var emailUser = ''
-
-let cachedDb = null;
-const bucketName = 'images';
-
-const connectToDatabase = async () => {
-  if (cachedDb) {
-    return cachedDb;
-  }
-
-  const uri = process.env.IMAGE_UPLOADER_DATABASE;
-  const dbName = process.env.MONGODB_DATABASE;
-
-  console.log("b try")
-  try {
-    const client = new MongoClient(uri);
-    let conn;
-    conn = await client.connect();
-                console.log("a cliet")
-    const db = client.db(dbName);
-                console.log("a db")
-    cachedDb = db;
-    return { client, db };
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    throw error;
-  }
-};
 
 const server = http.createServer((req, res) => {
 cors()(req, res, () => {
@@ -231,61 +203,49 @@ server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
     try {
-        const { client, db } = await connectToDatabase();
-        const bucket = new GridFSBucket(db, { bucketName });
-
-        const chunks = [];
-        let dataSize = 0;
+        let body = '';
 
         req.on('data', (chunk) => {
-            chunks.push(chunk);
-            dataSize += chunk.length;
+            body += chunk;
         });
+
         req.on('end', async () => {
-            const data = Buffer.concat(chunks);
+            const data = JSON.parse(body);
+            data.imagem_perfil_data = Buffer.from(data.imagem_perfil_data, 'base64');
 
             const contentDisposition = req.headers['content-disposition'];
             const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
 
             if (match) {
                 const originalFilename = match[1];
-            
+
                 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
                 const fileExtension = path.extname(originalFilename).toLowerCase();
-                console.log(fileExtension)
-                if (!allowedExtensions.includes(fileExtension)) {
-                    await handleUploadError(res, file.path, 'File extension is not allowed.');
-                    return;
-                }
-        
-                if (dataSize > 10485760) {
-                    await handleUploadError(res, file.path, 'File size exceeds the limit.');
-                    return;
-                }
-        
-                const uploadStream = bucket.openUploadStream(`${Date.now()}_${file.originalname}`);
-                uploadStream.write(data);
-                uploadStream.end();
-        
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.end('Image uploaded successfully.');
-            }
-        });
-        req.on('error', (error) => {
-        console.error('Request error:', error);
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
-        });
 
-        req.on('close', () => {
-        client.close();
+                if (!allowedExtensions.includes(fileExtension)) {
+                    await handleUploadError(res, 'File extension is not allowed.');
+                    return;
+                }
+
+                const dataSize = data.imagem_perfil_data.length;
+                if (dataSize > 10485760) {
+                    await handleUploadError(res, 'File size exceeds the limit.');
+                    return;
+                }
+            }
+
+            data.imagem_perfil_name = `${Date.now()}_${data.imagem_perfil_name}`;
+            const { updateProfilePicture } = require("./controller/users");
+            await updateProfilePicture(data);
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end(data.imagem_perfil_name);
         });
     } catch (error) {
-        console.error('Handler error:', error);
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
+        console.error('Error handling file upload:', error);
+        await handleUploadError(res, 'Internal Server Error.');
     }
-  }
+}
   
   async function handleUploadError(res, filePath, errorMessage) {
     console.error(errorMessage);

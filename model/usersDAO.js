@@ -17,6 +17,11 @@ class usersDAO {
         }else
             return null;
     }
+    static async updateNewPicture(picture){
+        const db = require('../db');
+        const conn=await db();
+        return await conn.query("UPDATE usuario SET imagem_perfil_name = ?, imagem_perfil_data=? WHERE idusuario=?",[picture.imagem_perfil_name,picture.imagem_perfil_data,picture.idusuario]);
+    }
 }
 
 module.exports = usersDAO;

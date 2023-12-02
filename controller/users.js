@@ -7,6 +7,10 @@ class users {
         const {checkEmailAndReturnPassword} = require('../model/usersDAO');
         return checkEmailAndReturnPassword(user);
     }
+    static updateProfilePicture(picture){
+        const {updateNewPicture} = require('../model/usersDAO');
+        return updateNewPicture(picture);
+    }
 }
 
 module.exports = users;
