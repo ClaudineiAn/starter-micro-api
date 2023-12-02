@@ -214,6 +214,9 @@ async function handleFileUpload(req, res) {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
 
+            const file = req.file;
+            const originalFilename = file.originalname;
+            
             const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
             const fileExtension = path.extname(originalFilename).toLowerCase();
 
