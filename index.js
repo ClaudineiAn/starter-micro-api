@@ -233,13 +233,13 @@ async function handleFileUpload(req, res) {
                     return;
                 }
 
-                const timestampedFilename = `${Date.now()}_${originalFilename}`;
+                /*const timestampedFilename = `${Date.now()}_${originalFilename}`;
                 const { updateProfilePicture } = require("./controller/users");
                 await updateProfilePicture({
                     imagem_perfil_data: data,
                     imagem_perfil_name: timestampedFilename,
                     imagem_perfil_type: getContentType(fileExtension),
-                });
+                });*/
     
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end(timestampedFilename);
