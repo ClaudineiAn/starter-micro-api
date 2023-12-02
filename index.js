@@ -212,7 +212,7 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data = Buffer.concat(chunks);
-            data.imagem_perfil_data = Buffer.from(data.imagem_perfil_data, 'base64');
+            data = Buffer.from(data, 'base64');
 
             const contentDisposition = req.headers['content-disposition'];
             const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
@@ -232,14 +232,18 @@ async function handleFileUpload(req, res) {
                     await handleUploadError(res, 'File size exceeds the limit.');
                     return;
                 }
+
+                const timestampedFilename = `${Date.now()}_${originalFilename}`;
+                const { updateProfilePicture } = require("./controller/users");
+                await updateProfilePicture({
+                    imagem_perfil_data: data,
+                    imagem_perfil_name: timestampedFilename,
+                    imagem_perfil_type: getContentType(fileExtension),
+                });
+    
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end(timestampedFilename);
             }
-
-            data.imagem_perfil_name = `${Date.now()}_${data.imagem_perfil_name}`;
-            const { updateProfilePicture } = require("./controller/users");
-            await updateProfilePicture(data);
-
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end(data.imagem_perfil_name);
         });
     } catch (error) {
         console.error('Error handling file upload:', error);
