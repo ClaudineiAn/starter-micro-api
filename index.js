@@ -214,6 +214,9 @@ async function handleFileUpload(req, res) {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
 
+            const contentDisposition = req.headers['content-disposition'];
+            const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
+
             const originalFilename = match[1];
 
             const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
