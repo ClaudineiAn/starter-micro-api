@@ -211,8 +211,8 @@ async function handleFileUpload(req, res) {
             dataSize += chunk.length;
         });
         req.on('end', async () => {
-            let data = Buffer.concat(chunks);
-            data = Buffer.from(data, 'base64');
+            const data1 = Buffer.concat(chunks);
+            const data = Buffer.from(data1, 'base64');
 
             const contentDisposition = req.headers['content-disposition'];
             const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
