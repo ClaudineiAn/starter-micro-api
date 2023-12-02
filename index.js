@@ -214,35 +214,45 @@ async function handleFileUpload(req, res) {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
 
-            const contentDisposition = req.headers['content-disposition'];
-            console.log(req.headers['content-disposition'])
-            const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
+            upload.single('file')(req, res, async function (err) {
+                if (err instanceof multer.MulterError) {
+                    console.error('Multer Error:', err);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Internal Server Error');
+                } else if (err) {
+                    console.error('Unknown Error:', err);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Internal Server Error');
+                } else {
+                    const file = req.file;
+    
+                    const originalFilename = file.originalname;
 
-            const originalFilename = match[1];
+                    const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+                    const fileExtension = path.extname(originalFilename).toLowerCase();
 
-            const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
-            const fileExtension = path.extname(originalFilename).toLowerCase();
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        await handleUploadError(res, 'File extension is not allowed.');
+                        return;
+                    }
+                    
+                    if (dataSize > 10485760) {
+                        await handleUploadError(res, 'File size exceeds the limit.');
+                        return;
+                    }
 
-            if (!allowedExtensions.includes(fileExtension)) {
-                await handleUploadError(res, 'File extension is not allowed.');
-                return;
-            }
-            
-            if (dataSize > 10485760) {
-                await handleUploadError(res, 'File size exceeds the limit.');
-                return;
-            }
+                    const timestampedFilename = `${Date.now()}_${originalFilename}`;
+                    const { updateProfilePicture } = require("./controller/users");
+                    await updateProfilePicture({
+                        imagem_perfil_data: data,
+                        imagem_perfil_name: timestampedFilename,
+                        imagem_perfil_type: getContentType(fileExtension),
+                    });
 
-            const timestampedFilename = `${Date.now()}_${originalFilename}`;
-            const { updateProfilePicture } = require("./controller/users");
-            await updateProfilePicture({
-                imagem_perfil_data: data,
-                imagem_perfil_name: timestampedFilename,
-                imagem_perfil_type: getContentType(fileExtension),
+                    res.writeHead(200, { 'Content-Type': 'text/plain' });
+                    res.end(timestampedFilename);
+                }
             });
-
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end(timestampedFilename);
         });
     } catch (error) {
         console.error('Error handling file upload:', error);
