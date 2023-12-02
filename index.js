@@ -213,7 +213,7 @@ async function handleFileUpload(req, res) {
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
-
+/*
             const contentDisposition = req.headers['content-disposition'];
             const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
 
@@ -243,7 +243,7 @@ async function handleFileUpload(req, res) {
     
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end(timestampedFilename);
-            }
+            
         });
     } catch (error) {
         console.error('Error handling file upload:', error);
