@@ -214,11 +214,6 @@ async function handleFileUpload(req, res) {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
 
-            const contentDisposition = req.headers['content-disposition'];
-            const match = contentDisposition && contentDisposition.match(/filename="(.+)"\r\n/);
-
-            const originalFilename = match[1];
-
             const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
             const fileExtension = path.extname(originalFilename).toLowerCase();
 
@@ -232,11 +227,10 @@ async function handleFileUpload(req, res) {
                 return;
             }
 
-            const timestampedFilename = `${Date.now()}_${originalFilename}`;
             const { updateProfilePicture } = require("./controller/users");
             await updateProfilePicture({
                 imagem_perfil_data: data,
-                imagem_perfil_name: timestampedFilename,
+                imagem_perfil_name: `${Date.now()}_${global.userEmail}`,
                 imagem_perfil_type: getContentType(fileExtension),
             });
 
