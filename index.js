@@ -203,7 +203,7 @@ server.listen(port, hostname, () => {});
 
 async function handleFileUpload(req, res) {
     try {
-        let body = '';
+        const chunks = [];
         let dataSize = 0;
 
         req.on('data', (chunk) => {
