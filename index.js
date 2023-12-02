@@ -210,7 +210,8 @@ async function handleFileUpload(req, res) {
         });
 
         req.on('end', async () => {
-            const data = body;
+            console.log('Received Body:', body);
+            const data = JSON.parse(body);
             data.imagem_perfil_data = Buffer.from(data.imagem_perfil_data, 'base64');
 
             const contentDisposition = req.headers['content-disposition'];
