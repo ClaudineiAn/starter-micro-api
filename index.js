@@ -91,6 +91,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
         }
         if(parsedUrl.pathname==='/updateUser'){
             const userEmail = query.e
+            module.exports = { userEmail };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/plain');
             res.end();
@@ -118,6 +119,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                 }
                 else{
                     const userEmail = query.email
+                    module.exports = { userEmail };
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify({ password: result[0].senha }));
@@ -138,6 +140,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                             (async()=>{
                                 if (result === true) {
                                     const userEmail = query.email
+                                    module.exports = { userEmail };
                                     res.statusCode = 200;
                                     res.setHeader('Content-Type', 'application/json');
                                     res.end(JSON.stringify(userData));
