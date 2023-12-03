@@ -216,7 +216,8 @@ async function handleFileUpload(req, res) {
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
-
+console.log(data)
+console.log("qq"+data1)
             const filenameRegex = /filename="([^"]+)"/;
             const match = data.toString('utf-8').match(filenameRegex);
             if(match){
