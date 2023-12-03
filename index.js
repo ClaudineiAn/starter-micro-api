@@ -90,7 +90,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
             handleFileUpload(req, res);
         }
         if(parsedUrl.pathname==='/updateUser'){
-            global.userEmail = query.e
+            const userEmail = query.e
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/plain');
             res.end();
@@ -117,7 +117,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                     res.end(JSON.stringify({ error: 'email is alredy in use' }));
                 }
                 else{
-                    global.userEmail = query.email
+                    const userEmail = query.email
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify({ password: result[0].senha }));
@@ -137,7 +137,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                         bcrypt.compare(query.password, userData[0].senha, function(err, result) {
                             (async()=>{
                                 if (result === true) {
-                                    global.userEmail = query.email
+                                    const userEmail = query.email
                                     res.statusCode = 200;
                                     res.setHeader('Content-Type', 'application/json');
                                     res.end(JSON.stringify(userData));
@@ -232,7 +232,7 @@ async function handleFileUpload(req, res) {
                     return;
                 }
 
-                console.log('1'+global.userEmail)
+                console.log('1'+userEmail)
                 const timestampedFilename = `${Date.now()}_${originalFilename}`;
                 const { updateProfilePicture } = require("./controller/users");
                 await updateProfilePicture({
