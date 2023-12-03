@@ -18,7 +18,7 @@ class usersDAO {
             return null;
     }
     static async updateNewPicture(picture){
-        const {userEmail}=require(',,/index.js')
+        const {userEmail}=require('../index.js')
         console.log(userEmail)
         const db = require('../db');
         const conn=await db();
