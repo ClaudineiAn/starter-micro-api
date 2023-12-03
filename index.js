@@ -89,13 +89,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
         if (parsedUrl.pathname==='/upload') {
             handleFileUpload(req, res);
         }
-        if(parsedUrl.pathname==='/updateUser'){
-            const userEmail = query.e
-            module.exports = { userEmail };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'text/plain');
-            res.end();
-        }
         if(parsedUrl.pathname==='/search'){
             (async()=>{
                 const {searchProducts} = require("./controller/products");
@@ -118,8 +111,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                     res.end(JSON.stringify({ error: 'email is alredy in use' }));
                 }
                 else{
-                    const userEmail = query.email
-                    module.exports = { userEmail };
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify({ password: result[0].senha }));
@@ -139,8 +130,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                         bcrypt.compare(query.password, userData[0].senha, function(err, result) {
                             (async()=>{
                                 if (result === true) {
-                                    const userEmail = query.email
-                                    module.exports = { userEmail };
                                     res.statusCode = 200;
                                     res.setHeader('Content-Type', 'application/json');
                                     res.end(JSON.stringify(userData));
@@ -216,12 +205,13 @@ async function handleFileUpload(req, res) {
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
             const data = Buffer.from(data1, 'base64');
-console.log(data)
-console.log("qq"+data1)
+            const pattern = /name="email"\s*[\n\r]+\s*([\S]+)/;
+            const matchEmail = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
-            const match = data.toString('utf-8').match(filenameRegex);
-            if(match){
-                const originalFilename = match[1];
+            const matchFileName = data.toString('utf-8').match(filenameRegex);
+            if(matchFileName&&matchEmail){
+                const originalFilename = matchFileName[1];
+                const email=matchEmail[1]
 
                 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
                 const fileExtension = path.extname(originalFilename).toLowerCase();
@@ -242,6 +232,7 @@ console.log("qq"+data1)
                     imagem_perfil_data: data,
                     imagem_perfil_name: timestampedFilename,
                     imagem_perfil_type: getContentType(fileExtension),
+                    email: email,
                 });
 
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
