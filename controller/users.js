@@ -8,7 +8,6 @@ class users {
         return checkEmailAndReturnPassword(user);
     }
     static updateProfilePicture(picture){
-        console.log(picture)
         const {updateNewPicture} = require('../model/usersDAO');
         return updateNewPicture(picture);
     }
