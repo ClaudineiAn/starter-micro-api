@@ -232,6 +232,7 @@ async function handleFileUpload(req, res) {
                     return;
                 }
 
+                console.log('1'+global.userEmail)
                 const timestampedFilename = `${Date.now()}_${originalFilename}`;
                 const { updateProfilePicture } = require("./controller/users");
                 await updateProfilePicture({
