@@ -235,8 +235,12 @@ async function handleFileUpload(req, res) {
                     email: email,
                 });
 
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.end(timestampedFilename);
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({
+                    imagem_perfil_data: data,
+                    imagem_perfil_name: timestampedFilename,
+                    imagem_perfil_type: getContentType(fileExtension),
+                }));
             }
         });
     } catch (error) {
