@@ -117,6 +117,22 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                 }
             })();
         }
+        if (parsedUrl.pathname === '/getimgfromemail') {
+            const { getimgfromemail } = require("./controller/users");
+            (async()=>{
+                try {
+                    const userData = await getimgfromemail(query);
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(userData));
+                } catch (err) {
+                    console.error(err);
+                    res.statusCode = 500;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ error: 'Internal server error' }));
+                }
+            })();
+        }
         if (parsedUrl.pathname === '/checkLogin') {
             const { checkEmailAndReturnPassword } = require("./controller/users");
             (async()=>{

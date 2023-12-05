@@ -22,6 +22,15 @@ class usersDAO {
         const conn=await db();
         return await conn.query("UPDATE usuario SET imagem_perfil_name = ?, imagem_perfil_data=?, imagem_perfil_tipo=? WHERE email=?",[picture.imagem_perfil_name,picture.imagem_perfil_data,picture.imagem_perfil_type,picture.email]);
     }
+    static async getimgfromemail(user){
+        const db = require('../db');
+        const conn=await db();
+        const [rows] = await conn.query("SELECT imagem_perfil_name, imagem_perfil_data, imagem_perfil_tipo FROM usuario WHERE email = ?",[user.email]);
+        if(rows[0]!==undefined){
+            return rows;
+        }else
+            return null;
+    }
 }
 
 module.exports = usersDAO;

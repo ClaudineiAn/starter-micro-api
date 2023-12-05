@@ -11,6 +11,10 @@ class users {
         const {updateNewPicture} = require('../model/usersDAO');
         return updateNewPicture(picture);
     }
+    static getimgfromemail(user){
+        const {getimgfromemail} = require('../model/usersDAO');
+        return getimgfromemail(user);
+    }
 }
 
 module.exports = users;
