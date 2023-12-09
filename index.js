@@ -220,13 +220,11 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-            console.log("qew"+data1)
             const data = data1.toString('base64');
-            console.log(data.toString('utf-8'))
             const pattern = /name="email"\s*[\n\r]+\s*([\S]+)/;
             const matchEmail = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
-            const matchFileName = data.toString('utf-8').match(filenameRegex);
+            const matchFileName = data1.toString('utf-8').match(filenameRegex);
             if(matchFileName&&matchEmail){
                 const originalFilename = matchFileName[1];
                 const email=matchEmail[1]
