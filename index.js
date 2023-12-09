@@ -70,14 +70,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
             try {
                 (async()=>{
                     const { getimgfromemail } = require("./controller/users");
-                    try {
-                        const userData = await getimgfromemail(query);
-                    } catch (err) {
-                        console.error(err);
-                        res.statusCode = 500;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.end(JSON.stringify({ error: 'Internal server error' }));
-                    }
+                    const userData = await getimgfromemail(query);
                     admin.initializeApp({
                         credential: admin.credential.cert(serviceAccount),
                         databaseURL: process.env.FIRE,
