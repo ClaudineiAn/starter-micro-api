@@ -248,6 +248,7 @@ async function handleFileUpload(req, res) {
                     await database.ref(`images/${timestampedFilename}`).set(data);
                 };
                 const database = admin.database();
+                const { updateProfilePicture } = require("./controller/users");
                 await updateProfilePicture({
                     imagem_perfil_name: timestampedFilename,
                     email: email,
