@@ -9,6 +9,8 @@ const jwt = require('jsonwebtoken')
 const util = require('util');
 const { promisify } = require('util');
 const cors = require('cors');
+const admin = require('firebase-admin');
+const serviceAccount = require('serviceAccountKey.json');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
@@ -67,18 +69,29 @@ res.setHeader('Access-Control-Allow-Credentials', true);
         if(parsedUrl.pathname==='/image'){
             try {
                 (async()=>{
-                    const db = await connectToDatabase();
-                    const bucket = new GridFSBucket(db, { bucketName });
-            
-                    const downloadStream = bucket.openDownloadStreamByName('uploaded_image.png');
-            
-                    downloadStream.on('data', (chunk) => res.write(chunk));
-                    downloadStream.on('end', () => res.end());
-                    downloadStream.on('error', (error) => {
-                    console.error('Error reading image from MongoDB:', error);
-                    res.writeHead(500, { 'Content-Type': 'text/plain' });
-                    res.end('Internal Server Error');
+                    const { getimgfromemail } = require("./controller/users");
+                    try {
+                        const userData = await getimgfromemail(query);
+                    } catch (err) {
+                        console.error(err);
+                        res.statusCode = 500;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.end(JSON.stringify({ error: 'Internal server error' }));
+                    }
+                    admin.initializeApp({
+                        credential: admin.credential.cert(serviceAccount),
+                        databaseURL: process.env.FIRE,
                     });
+                    
+                    const database = admin.database();
+
+                    const retrieveImage = async (userData) => {
+                        const snapshot = await database.ref(`images/${userData.data[0].imagem_perfil_name}`).once('value');
+                        return snapshot.val();
+                    };
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ image: retrieveImage }));
                 })();
             } catch (error) {
                 console.error('Error retrieving image:', error);
@@ -114,22 +127,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
                     res.end(JSON.stringify({ password: result[0].senha }));
-                }
-            })();
-        }
-        if (parsedUrl.pathname === '/getimgfromemail') {
-            const { getimgfromemail } = require("./controller/users");
-            (async()=>{
-                try {
-                    const userData = await getimgfromemail(query);
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify(userData));
-                } catch (err) {
-                    console.error(err);
-                    res.statusCode = 500;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify({ error: 'Internal server error' }));
                 }
             })();
         }
@@ -243,19 +240,22 @@ async function handleFileUpload(req, res) {
                 }
 
                 const timestampedFilename = `${Date.now()}_${originalFilename}`;
-                const { updateProfilePicture } = require("./controller/users");
+                admin.initializeApp({
+                    credential: admin.credential.cert(serviceAccount),
+                    databaseURL: process.env.FIRE,
+                });
+                const saveImage = async (timestampedFilename, data) => {
+                    await database.ref(`images/${timestampedFilename}`).set(data);
+                };
+                const database = admin.database();
                 await updateProfilePicture({
-                    imagem_perfil_data: data,
                     imagem_perfil_name: timestampedFilename,
-                    imagem_perfil_type: getContentType(fileExtension),
                     email: email,
                 });
 
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({
-                    imagem_perfil_data: data,
                     imagem_perfil_name: timestampedFilename,
-                    imagem_perfil_type: getContentType(fileExtension),
                 }));
             }
         });

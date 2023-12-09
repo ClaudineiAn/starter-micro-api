@@ -20,12 +20,12 @@ class usersDAO {
     static async updateNewPicture(picture){
         const db = require('../db');
         const conn=await db();
-        return await conn.query("UPDATE usuario SET imagem_perfil_name = ?, imagem_perfil_data=?, imagem_perfil_tipo=? WHERE email=?",[picture.imagem_perfil_name,picture.imagem_perfil_data,picture.imagem_perfil_type,picture.email]);
+        return await conn.query("UPDATE usuario SET imagem_perfil_name = ? WHERE email=?",[picture.imagem_perfil_name,picture.email]);
     }
     static async getimgfromemail(user){
         const db = require('../db');
         const conn=await db();
-        const [rows] = await conn.query("SELECT imagem_perfil_name, imagem_perfil_data, imagem_perfil_tipo FROM usuario WHERE email = ?",[user.e]);
+        const [rows] = await conn.query("SELECT imagem_perfil_name FROM usuario WHERE email = ?",[user.e]);
         if(rows[0]!==undefined){
             return rows;
         }else
