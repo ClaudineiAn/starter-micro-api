@@ -78,7 +78,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                     });
                     
                     const database = admin.database();
-console.log(userData)
+console.log(userData[0])
                     const retrieveImage = async (userData) => {
                         const snapshot = await database.ref(`images/${userData.data[0].imagem_perfil_name}`).once('value');
                         return snapshot.val();
