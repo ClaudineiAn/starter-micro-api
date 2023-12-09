@@ -66,11 +66,12 @@ res.setHeader('Access-Control-Allow-Credentials', true);
     if(req.method==='GET'){
         const parsedUrl = url.parse(req.url);
         const query = querystring.parse(parsedUrl.query);
+        let userData;
         if(parsedUrl.pathname==='/image'){
             try {
                 (async()=>{
                     const { getimgfromemail } = require("./controller/users");
-                    const userData = await getimgfromemail(query);
+                    userData = await getimgfromemail(query);
                     admin.initializeApp({
                         credential: admin.credential.cert(serviceAccount),
                         databaseURL: process.env.FIRE,
