@@ -212,14 +212,13 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-			console.log(data1)
-            const pattern = /name="email"\s*[\n\r]+\s*([\S]+)/;
-            const matchEmail = pattern.exec(data1);
+            const pattern = /name="id"\s*[\n\r]+\s*([\S]+)/;
+            const matchId = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
             const matchFileName = data1.toString('utf-8').match(filenameRegex);
-            if(matchFileName&&matchEmail){
+            if(matchFileName&&matchId){
                 const originalFilename = matchFileName[1];
-                const email=matchEmail[1]
+                const id=matchId[1]
 
                 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
                 const fileExtension = path.extname(originalFilename).toLowerCase();
@@ -252,18 +251,13 @@ async function handleFileUpload(req, res) {
 
 				stream.on('finish', async () => {
 					const imageUrl = `https://storage.googleapis.com/${bucket.name}/${remoteFilePath}`;
-					await database.ref(`users/${email}/profileImage`).set(imageUrl);
+					await database.ref(`users/${id}/profileImage`).set(imageUrl);
 
 					res.setHeader('Content-Type', 'application/json');
-					res.end(JSON.stringify({
-						imagem_perfil_name: timestampedFilename,
-					}));
+					res.end({
+						message: 'ok',
+					});
 				});
-                const { updateProfilePicture } = require("./controller/users");
-                await updateProfilePicture({
-                    imagem_perfil_name: timestampedFilename,
-                    email: email,
-                });
             }
         });
     } catch (error) {
