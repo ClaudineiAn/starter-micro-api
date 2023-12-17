@@ -243,16 +243,27 @@ async function handleFileUpload(req, res) {
                     await database.ref(`images/${timestampedFilename}`).set(data);
                 };
                 const database = admin.database();
+				const timestampedFilename = `${Date.now()}_${originalFilename}`;
+
+				const remoteFilePath = `images/${timestampedFilename}`;
+				const file = bucket.file(remoteFilePath);
+				const stream = file.createWriteStream();
+				stream.end(data1);
+
+				stream.on('finish', async () => {
+					const imageUrl = `https://storage.googleapis.com/${bucket.name}/${remoteFilePath}`;
+					await database.ref(`users/${email}/profileImage`).set(imageUrl);
+
+					res.setHeader('Content-Type', 'application/json');
+					res.end(JSON.stringify({
+						imagem_perfil_name: timestampedFilename,
+					}));
+				});
                 const { updateProfilePicture } = require("./controller/users");
                 await updateProfilePicture({
                     imagem_perfil_name: timestampedFilename,
                     email: email,
                 });
-
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({
-                    imagem_perfil_name: timestampedFilename,
-                }));
             }
         });
     } catch (error) {
