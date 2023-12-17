@@ -237,6 +237,7 @@ async function handleFileUpload(req, res) {
                 admin.initializeApp({
                     credential: admin.credential.cert(serviceAccount),
                     databaseURL: process.env.FIRE,
+					storageBucket: 'gs://vue-store-da146.appspot.com',
                 });
 				
 				const storage = admin.storage();
