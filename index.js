@@ -238,6 +238,9 @@ async function handleFileUpload(req, res) {
                     credential: admin.credential.cert(serviceAccount),
                     databaseURL: process.env.FIRE,
                 });
+				
+				const storage = admin.storage();
+				const bucket = storage.bucket();
                 const database = admin.database();
 
 				const remoteFilePath = `images/${timestampedFilename}`;
