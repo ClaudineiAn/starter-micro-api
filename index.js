@@ -243,7 +243,6 @@ async function handleFileUpload(req, res) {
                     await database.ref(`images/${timestampedFilename}`).set(data);
                 };
                 const database = admin.database();
-				const timestampedFilename = `${Date.now()}_${originalFilename}`;
 
 				const remoteFilePath = `images/${timestampedFilename}`;
 				const file = bucket.file(remoteFilePath);
