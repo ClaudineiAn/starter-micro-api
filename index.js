@@ -212,13 +212,10 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-            const pattern = /name="id"\s*[\n\r]+\s*([\S]+)/;
-            const matchId = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
             const matchFileName = data1.toString('utf-8').match(filenameRegex);
-            if(matchFileName&&matchId){
+            if(matchFileName){
                 const originalFilename = matchFileName[1];
-                const id=matchId[1]
 
                 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
                 const fileExtension = path.extname(originalFilename).toLowerCase();
