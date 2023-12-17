@@ -84,7 +84,8 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                     };
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
-                    res.end(JSON.stringify({ image: retrieveImage }));
+                    const image = await retrieveImage(userData);
+					res.end(JSON.stringify({ image }));
                 })();
             } catch (error) {
                 console.error('Error retrieving image:', error);
