@@ -78,13 +78,14 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                     });
                     
                     const database = admin.database();
-                    const retrieveImage = async (userData) => {
-                        const snapshot = await database.ref(`images/${userData[0].imagem_perfil_name}`).once('value');
+					const img = path.basename(userData[0].imagem_perfil_name, path.extname(userData[0].imagem_perfil_name));
+                    const retrieveImage = async (imgName) => {
+                        const snapshot = await database.ref(`images/${imgName}`).once('value');
                         return snapshot.val();
                     };
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
-                    const image = await retrieveImage(userData);
+                    const image = await retrieveImage(img);
 					res.end(JSON.stringify({ image }));
                 })();
             } catch (error) {
