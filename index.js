@@ -212,6 +212,7 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
+			console.log(data1)
             const pattern = /name="email"\s*[\n\r]+\s*([\S]+)/;
             const matchEmail = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
