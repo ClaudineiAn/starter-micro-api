@@ -212,7 +212,6 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-            const data = data1.toString('base64');
             const pattern = /name="email"\s*[\n\r]+\s*([\S]+)/;
             const matchEmail = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
@@ -239,9 +238,6 @@ async function handleFileUpload(req, res) {
                     credential: admin.credential.cert(serviceAccount),
                     databaseURL: process.env.FIRE,
                 });
-                const saveImage = async (timestampedFilename, data) => {
-                    await database.ref(`images/${timestampedFilename}`).set(data);
-                };
                 const database = admin.database();
 
 				const remoteFilePath = `images/${timestampedFilename}`;
