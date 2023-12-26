@@ -214,13 +214,14 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-            const parsedBody = querystring.parse(body);
-			const id = parsedBody.id;
+            const pattern = /name="id"\s*[\n\r]+\s*([\S]+)/;
+			const matchId = pattern.exec(body);
             const filenameRegex = /filename="([^"]+)"/;
             const matchFileName = data1.toString('utf-8').match(filenameRegex);
-			console.log(id);
-            if(matchFileName){
+			console.log(matchId);
+            if(matchFileName&&matchId){
                 const originalFilename = matchFileName[1];
+				const id = matchId[1];
 
                 const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
                 const fileExtension = path.extname(originalFilename).toLowerCase();
@@ -255,10 +256,8 @@ async function handleFileUpload(req, res) {
 					const imageUrl = `https://storage.googleapis.com/${bucket.name}/${remoteFilePath}`;
 					await database.ref(`users/${id}/profileImage`).set(imageUrl);
 
-					res.setHeader('Content-Type', 'application/json');
-					res.end({
-						message: 'ok',
-					});
+					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.end("ok");
 				});
             }
         });
