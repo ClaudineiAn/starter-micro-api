@@ -22,6 +22,16 @@ const sessions = {};
 
 var emailUser = ''
 
+admin.initializeApp({
+	credential: admin.credential.cert(serviceAccount),
+	databaseURL: process.env.FIRE,
+	storageBucket: 'gs://vue-store-da146.appspot.com',
+});
+
+const storage = admin.storage();
+const bucket = storage.bucket();
+const database = admin.database();
+
 const server = http.createServer((req, res) => {
 cors()(req, res, () => {
     res.setHeader('Access-Control-Allow-Origin', 'https://sweet-bombolone-4523a4.netlify.app');
@@ -72,12 +82,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                 (async()=>{
                     const { getimgfromemail } = require("./controller/users");
                     userData = await getimgfromemail(query);
-                    admin.initializeApp({
-                        credential: admin.credential.cert(serviceAccount),
-                        databaseURL: process.env.FIRE,
-                    });
-                    
-                    const database = admin.database();
 					const img = path.basename(userData[0].imagem_perfil_name, path.extname(userData[0].imagem_perfil_name));
                     const retrieveImage = async (imgName) => {
                         const snapshot = await database.ref(`images/${imgName}`).once('value');
@@ -237,15 +241,6 @@ async function handleFileUpload(req, res) {
                 }
 
                 const timestampedFilename = `${Date.now()}_${originalFilename}`;
-                admin.initializeApp({
-                    credential: admin.credential.cert(serviceAccount),
-                    databaseURL: process.env.FIRE,
-					storageBucket: 'gs://vue-store-da146.appspot.com',
-                });
-				
-				const storage = admin.storage();
-				const bucket = storage.bucket();
-                const database = admin.database();
 
 				const remoteFilePath = `images/${timestampedFilename}`;
 				const file = bucket.file(remoteFilePath);
@@ -256,6 +251,8 @@ async function handleFileUpload(req, res) {
 					const imageUrl = `https://storage.googleapis.com/${bucket.name}/${remoteFilePath}`;
 					await database.ref(`users/${id}/profileImage`).set(imageUrl);
 
+					const {updateProfilePicture} = require("./controller/users");
+					const result=await updateProfilePicture({imagem_perfil_name:timestampedFilename,id:id});
 					res.writeHead(200, { 'Content-Type': 'text/plain' });
 					res.end("ok");
 				});
