@@ -222,7 +222,6 @@ async function handleFileUpload(req, res) {
 			const matchId = pattern.exec(body);
             const filenameRegex = /filename="([^"]+)"/;
             const matchFileName = data1.toString('utf-8').match(filenameRegex);
-			console.log(matchId[1]);
             if(matchFileName&&matchId){
                 const originalFilename = matchFileName[1];
 				const id = matchId[1];
