@@ -214,7 +214,9 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-			console.log(body);
+			const originalString = 'Hello, World!';
+			const buffer = Buffer.from(originalString, 'utf-8');
+			console.log(buffer);
             const pattern = /name="id"\s*[\n\r]+\s*([\S]+)/;
             const matchId = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
