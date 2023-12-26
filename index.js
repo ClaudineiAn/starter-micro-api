@@ -252,7 +252,7 @@ async function handleFileUpload(req, res) {
 
 					const {updateProfilePicture} = require("./controller/users");
 					const result=await updateProfilePicture({imagem_perfil_name:timestampedFilename,id:id});
-					console.log(result)
+
 					res.writeHead(200, { 'Content-Type': 'text/plain' });
 					res.end("ok");
 				});
