@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@google-cloud/storage": "^7.7.0",
     "bcrypt": "^5.1.1",
     "client-sessions": "^0.8.0",
     "connect-flash": "^0.1.1",

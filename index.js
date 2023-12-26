@@ -14,6 +14,8 @@ const serviceAccount = require('./serviceAccountKey.json');
 const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
+const { Storage } = require('@google-cloud/storage');
+const storage = new Storage();
 
 const hostname = '0.0.0.0';
 const port = 3000;
@@ -25,7 +27,7 @@ var emailUser = ''
 admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	databaseURL: process.env.FIRE,
-	storageBucket: 'gs://vue-store-da146.appspot.com',
+	storageBucket: process.evn.BUCKET,
 });
 
 const storage = admin.storage();
@@ -79,24 +81,40 @@ res.setHeader('Access-Control-Allow-Credentials', true);
         let userData;
         if(parsedUrl.pathname==='/image'){
             try {
-                (async()=>{
-                    const { getimgfromemail } = require("./controller/users");
-                    userData = await getimgfromemail(query);
-					const img = path.basename(userData[0].imagem_perfil_name, path.extname(userData[0].imagem_perfil_name));
-                    const retrieveImage = async (imgName) => {
-                        const snapshot = await database.ref(`images/${imgName}`).once('value');
-                        return snapshot.val();
-                    };
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    const image = await retrieveImage(img);
-					res.end(JSON.stringify({ image }));
-                })();
-            } catch (error) {
-                console.error('Error retrieving image:', error);
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Internal Server Error');
-            }
+				(async () => {
+					const { getimgfromemail } = require('./controller/users');
+					userData = await getimgfromemail(query);
+
+					if (!userData || !userData[0].imagem_perfil_name) {
+						res.writeHead(404, { 'Content-Type': 'text/plain' });
+						res.end('Image not found');
+						return;
+					}
+
+					const imgName = userData[0].imagem_perfil_name;
+
+					const getImageUrl = async (imgName) => {
+						const bucketName = 'vue-store-da146.appspot.com';
+
+						const [url] = await storage.bucket(bucketName).file(`images/${imgName}`).getSignedUrl({
+						  action: 'read',
+						  expires: Date.now() + 15 * 60 * 1000,
+						});
+
+						return url;
+					};
+
+					const imageUrl = await getImageUrl(imgName);
+
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.end(JSON.stringify({ image: imageUrl }));
+				})();
+			} catch (error) {
+				console.error('Error retrieving image:', error);
+				res.writeHead(500, { 'Content-Type': 'text/plain' });
+				res.end('Internal Server Error');
+			}
         }
         if (parsedUrl.pathname==='/upload') {
             handleFileUpload(req, res);
