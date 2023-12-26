@@ -256,7 +256,7 @@ async function handleFileUpload(req, res) {
 					const imageUrl = `https://storage.googleapis.com/${bucket.name}/${remoteFilePath}`;
 					await database.ref(`users/${id}/profileImage`).set(imageUrl);
 
-					res.writeHead(400, { 'Content-Type': 'text/plain' });
+					res.writeHead(200, { 'Content-Type': 'text/plain' });
 					res.end("ok");
 				});
             }
