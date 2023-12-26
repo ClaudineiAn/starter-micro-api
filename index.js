@@ -214,8 +214,7 @@ async function handleFileUpload(req, res) {
         });
         req.on('end', async () => {
             const data1 = Buffer.concat(chunks);
-			const base64String = body.toString('base64');
-			console.log(base64String);
+			console.log(querystring.parse(body));
             const pattern = /name="id"\s*[\n\r]+\s*([\S]+)/;
             const matchId = pattern.exec(data1);
             const filenameRegex = /filename="([^"]+)"/;
