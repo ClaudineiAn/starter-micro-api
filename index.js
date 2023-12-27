@@ -98,7 +98,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 
 						const [url] = await storageClound.bucket(bucketName).file(`images/${imgName}`).getSignedUrl({
 						  action: 'read',
-						  expires: Date.now() + 15 * 60 * 1000,
+						  expires: Date.now() + 365 * 30 * 24 * 60 * 60 * 1000,
 						});
 
 						return url;
