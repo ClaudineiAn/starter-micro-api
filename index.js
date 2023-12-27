@@ -15,7 +15,7 @@ const renameAsync = promisify(fs.rename);
 const unlinkAsync = promisify(fs.unlink);
 const upload = multer({ dest: 'profileImg/' });
 const { Storage } = require('@google-cloud/storage');
-const storage = new Storage();
+const storageClound = new Storage();
 
 const hostname = '0.0.0.0';
 const port = 3000;
@@ -96,7 +96,7 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 					const getImageUrl = async (imgName) => {
 						const bucketName = 'vue-store-da146.appspot.com';
 
-						const [url] = await storage.bucket(bucketName).file(`images/${imgName}`).getSignedUrl({
+						const [url] = await storageClound.bucket(bucketName).file(`images/${imgName}`).getSignedUrl({
 						  action: 'read',
 						  expires: Date.now() + 15 * 60 * 1000,
 						});
