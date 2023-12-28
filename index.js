@@ -27,7 +27,7 @@ var emailUser = ''
 admin.initializeApp({
 	credential: admin.credential.cert(serviceAccount),
 	databaseURL: process.env.FIRE,
-	storageBucket: process.evn.BUCKET,
+	storageBucket: process.env.BUCKET,
 });
 
 const storage = admin.storage();
