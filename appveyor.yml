@@ -1,0 +1,10 @@
+# appveyor.yml
+
+platform: Any CPU
+
+# Switch to "Script" mode
+build: off
+
+# Define your custom build script
+before_build:
+  - ps: .\path\to\your\custom\build\script.ps1
