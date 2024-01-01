@@ -1,4 +1,4 @@
-name: Deploy to Netlify
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -13,14 +13,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy to Netlify
+      - name: Build and deploy
         run: |
-          # Deploy commands to Netlify
+          # Your build and deploy commands here
           # ...
+
+          # Capture the GitHub Pages URL
+          URL=$(grep -o 'https://[^\"]*' _site/index.html)
+          echo "Deployed Site URL: $URL"
 
       - name: Set output URL
         id: set_url
-        run: echo "URL=${{ env.URL }}" >> $GITHUB_ENV
+        run: echo "URL=${URL}" >> $GITHUB_ENV
 
       - name: Upload URL as Artifact
         uses: actions/upload-artifact@v2
