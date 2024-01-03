@@ -168,7 +168,6 @@ res.setHeader('Access-Control-Allow-Credentials', true);
 								res.setHeader('Content-Type', 'application/json');
 								res.end(JSON.stringify({ error: 'Invalid password' }));
 							})
-                        });
                     }
                 } catch (err) {
                     console.error(err);
