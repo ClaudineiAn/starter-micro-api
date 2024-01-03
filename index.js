@@ -1,7 +1,7 @@
 const http = require('http');
 const url = require('url');
 const querystring = require('querystring');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -131,8 +131,8 @@ res.setHeader('Access-Control-Allow-Credentials', true);
         if(parsedUrl.pathname==='/registerVue'){
             (async()=>{
                 const saltRounds = 10;
-                const salt = await bcrypt.genSalt(saltRounds);
-                query.password = await bcrypt.hash(query.password, salt);
+                const salt = await bcryptjs.genSalt(saltRounds);
+                query.password = await bcryptjs.hash(query.password, salt);
                 const {insertNewUser} = require("./controller/users");
                 const result=await insertNewUser(query);
                 if(result==="Email is registered"){
@@ -157,18 +157,17 @@ res.setHeader('Access-Control-Allow-Credentials', true);
                         res.setHeader('Content-Type', 'application/json');
                         res.end(JSON.stringify({ error: 'Invalid email' }));
                     } else {
-                        bcrypt.compare(query.password, userData[0].senha, function(err, result) {
-                            (async()=>{
-                                if (result === true) {
-                                    res.statusCode = 200;
-                                    res.setHeader('Content-Type', 'application/json');
-                                    res.end(JSON.stringify(userData));
-                                } else {
-                                    res.statusCode = 401;
-                                    res.setHeader('Content-Type', 'application/json');
-                                    res.end(JSON.stringify({ error: 'Invalid password' }));
-                                }
-                            })();
+                        bcrypt.compare(query.password, userData[0].senha)
+							.then(result => {
+								res.statusCode = 200;
+								res.setHeader('Content-Type', 'application/json');
+								res.end(JSON.stringify(userData));
+							})
+							.catch(err => {
+								res.statusCode = 401;
+								res.setHeader('Content-Type', 'application/json');
+								res.end(JSON.stringify({ error: 'Invalid password' }));
+							})
                         });
                     }
                 } catch (err) {
