@@ -79,6 +79,25 @@ res.setHeader('Access-Control-Allow-Credentials', true);
         const parsedUrl = url.parse(req.url);
         const query = querystring.parse(parsedUrl.query);
         let userData;
+        if(parsedUrl.pathname==='/home'){
+            const {home} = require("./controller/products");
+            home().then((homeData) => {
+                if(homeData === null) {
+                    res.statusCode = 401;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify({ error: 'Do not exists products' }));
+                }else{
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(JSON.stringify(homeData));
+                }
+            }).catch((err) => {
+                console.error(err);
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ error: 'Internal server error' }));
+            });
+        }
         if(parsedUrl.pathname==='/image'){
             try {
 				(async () => {

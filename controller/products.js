@@ -1,4 +1,9 @@
 class products {
+    static home(){
+        const db = require('../db');
+        const {home} = require('../model/productsDAO');
+        return home(db);
+    }
     static getProducts(){
         const db = require('../db');
         const {getProducts} = require('../model/productsDAO');
